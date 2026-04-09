@@ -36,8 +36,12 @@ jobs:
           failed=false
 
           # Reject any changes outside submissions/.
+          echo "=== All changed files in this PR ==="
+          git diff --name-only origin/${{ github.base_ref }}...HEAD
+          echo "=== End of changed files ==="
+
           outside=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
-            | grep -v '^submissions/')
+            | grep -v '^submissions/' || true)
           if [ -n "$outside" ]; then
             echo "::error::PRs may only add files inside submissions/. The following files are not allowed:"
             echo "$outside" | while read f; do echo "  $f"; done
@@ -292,7 +296,7 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.LEADERBOARD_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
